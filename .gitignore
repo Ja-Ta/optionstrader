@@ -1,0 +1,24 @@
+# --- never distribute ---
+# copyrighted book scan — not needed to run anything
+options-trading-strategy.md
+# SMTP credentials
+.env.daily
+# personal positions
+portfolio.json
+# generated daily reports
+reports/
+# provider cache
+.cache/
+# sweep outputs
+backtests/
+# personal watchlist
+watchlist.txt
+# local harness settings
+.claude/
+
+# --- build/runtime ---
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
