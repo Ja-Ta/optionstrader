@@ -73,6 +73,8 @@ class DailyReport:
         for r in self.scan_hits:
             lines.append(f"  {r.ticker} {r.bucket.upper()} @ {r.price:.2f} (vol {r.volume_ratio:.1f}x)")
             lines += [f"      - {reason}" for reason in r.reasons]
+            if r.timing:
+                lines.append(f"      timing: {r.timing}")
         return "\n".join(lines)
 
 
@@ -180,6 +182,15 @@ def run_daily(
             h.cd_signals = cd.sell_signals + cd.buy_signals
             if cd.state == "sell_defend":
                 urgent.append((1, f"{ticker}: CD deterioration — {cd.sell_signals[0]}"))
+
+        # Short-term account: the Ch-18 block is the mirror image of CD.
+        if pos.account == "short_term" and pos.shares > 0:
+            from .indicators import assess_short_term, manage_five_day
+
+            h.notes.extend(assess_short_term(df).lines())
+            for sig in manage_five_day(df):
+                h.alerts.append(f"[SOON] {ticker}: {sig}")
+                urgent.append((1, f"{ticker}: {sig}"))
 
     if watchlist:
         holdings_set = set(portfolio.positions)

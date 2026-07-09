@@ -66,6 +66,7 @@ class ScanReport:
     reasons: list[str] = field(default_factory=list)
     volume_ratio: float = 0.0
     day_change: float = 0.0
+    timing: str = ""        # Ch-18 entry-timing numbers (populated for passers)
 
     def failed(self) -> list[str]:
         return [k for k, v in self.conditions.items() if not v]
@@ -180,6 +181,9 @@ def scan_ticker(ticker: str, df: pd.DataFrame, p: ScanParams, cfg: Config = DEFA
     if passed:
         t = triage(df, cfg)
         report.bucket, report.reasons = t.bucket, t.reasons
+        from ..indicators.shortterm import timing_line
+
+        report.timing = timing_line(df)  # Ch-18: the pattern says whether; these say when/where
     return report
 
 

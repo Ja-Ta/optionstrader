@@ -50,6 +50,13 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             )
     print()
     print(result.summary())
+    if args.short_term:
+        from .indicators import assess_short_term
+
+        print()
+        print("short-term toolkit (Ch-18 — decides WHEN/WHERE, never WHETHER):")
+        for line in assess_short_term(df).lines():
+            print(f"  {line}")
     return 0
 
 
@@ -65,7 +72,9 @@ def cmd_record(args: argparse.Namespace) -> int:
     try:
         if args.action == "buy-stock":
             pos.buy_shares(args.shares, args.price, day, args.note or "")
-            print(f"bought {args.shares} {pos.ticker} @ {args.price:.2f}")
+            if args.account:
+                pos.account = args.account
+            print(f"bought {args.shares} {pos.ticker} @ {args.price:.2f} ({pos.account})")
         elif args.action == "sell-stock":
             proceeds = pos.sell_shares(args.shares, args.price, day, args.note or "")
             print(f"sold {args.shares} {pos.ticker} @ {args.price:.2f} — proceeds ${proceeds:,.2f}")
@@ -173,6 +182,8 @@ def cmd_scan(args: argparse.Namespace) -> int:
               f"vol {r.volume_ratio:.1f}x avg  day {r.day_change:+.1%}")
         for reason in r.reasons:
             print(f"    - {reason}")
+        if r.timing:
+            print(f"    timing: {r.timing}")
     if args.verbose:
         print("\nnon-passers:")
         for r in reports:
@@ -325,6 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     p_an.add_argument("--shares", type=int, default=0)
     p_an.add_argument("--willing-to-add", action="store_true")
     p_an.add_argument("--levels", action="store_true", help="print detected S/R levels")
+    p_an.add_argument("--short-term", action="store_true", help="Ch-18 oscillator/envelope timing block")
     p_an.set_defaults(func=cmd_analyze)
 
     p_rc = sub.add_parser("record", help="log a fill: keeps the ledger and open_shorts in sync")
@@ -341,6 +353,8 @@ def main(argv: list[str] | None = None) -> int:
     p_rc.add_argument("--premium", type=float, help="per-share premium collected (sell-call/sell-put)")
     p_rc.add_argument("--date", default=None, help="fill date (default today)")
     p_rc.add_argument("--note", default=None)
+    p_rc.add_argument("--account", choices=["long_term", "short_term"], default=None,
+                      help="account bucket on buy-stock (short_term gets envelope management in daily)")
     p_rc.set_defaults(func=cmd_record)
 
     p_dy = sub.add_parser("daily", help="the after-close routine: holdings + alerts + CD + watchlist scan")
