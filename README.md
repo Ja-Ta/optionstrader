@@ -13,6 +13,9 @@ Backtests here price options *synthetically* (Black-Scholes on realized
 volatility) unless you supply real historical chains — treat all backtest
 output as an evaluation of the timing logic, not a forecast of returns.
 
+**New to the app?** Read [docs/10-getting-started-guide.md](docs/10-getting-started-guide.md) —
+plain-language concepts and a realistic first-month walkthrough (paper-trade first).
+
 ## Quickstart
 
 ```bash
