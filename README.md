@@ -18,7 +18,7 @@ output as an evaluation of the timing logic, not a forecast of returns.
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -q          # 100 offline tests, no network needed
+.venv/bin/python -m pytest -q          # 125 offline tests, no network needed
 .venv/bin/optionstrader analyze AAPL --levels
 ```
 
@@ -27,9 +27,10 @@ python3 -m venv .venv
 | Command | Purpose |
 |---|---|
 | `screen TICKER...` | Capability screen: can this stock's options pay ≥20%/yr at 20% OTM? |
-| `scan TICKER...` | 10-condition heavy-volume reversal scan + eliminate/watch/enter triage |
+| `scan TICKER...` | 10-condition heavy-volume reversal scan + triage, with entry-timing numbers on hits |
+| `squeeze TICKER...` | Monthly short-squeeze screen: short-interest build + accumulation filter, ITM-put ladder |
 | `plan TICKER --shares N` | Half/half put-sale entry plan from live chains and support levels |
-| `analyze TICKER` | Decision state machine on one ticker (trend, money flow, levels) |
+| `analyze TICKER` | Decision state machine on one ticker (trend, money flow, levels); `--short-term` adds the oscillator/envelope block |
 | `cd TICKER --index ^GSPC` | Weekly relative-strength chart — the long-term exit tripwire |
 | `record ACTION TICKER ...` | Log fills; enforces no-naked-calls and keeps the ledger consistent |
 | `status` | Premium-adjusted cost basis and mark-to-market per position |
@@ -77,19 +78,22 @@ Install with cron, e.g. 45 minutes after the US close:
 
 ```
 config.py        thresholds: BookRules (the strategy spec) vs Calibrated (backtest-tunable)
-indicators/      MA tests, CMF, volume signals, support/resistance, CD relative strength
+indicators/      MA tests, CMF, volume signals, support/resistance, CD relative strength,
+                 short-term toolkit (oscillator / buy-sell envelopes)
 signals/         the per-position decision state machine + order constraint validation
 options/         strike/expiration selection, short-premium tracker, entry planner
 portfolio/       fill ledger: premium-adjusted basis + mark-to-market, open-shorts state
-scanner/         10-condition reversal scan + triage
+scanner/         10-condition reversal scan + triage; short-squeeze screen
 data/            provider interface, yfinance default, cache/retry, factory, template
 backtest/        simulated broker, synthetic pricing, strategy comparison, metrics
 daily.py         the after-close routine; reporting.py — file/email delivery
 ```
 
-The strategy rules implemented here are distilled in `docs/` (analysis working
-documents). Constants in `config.py` cite their source; `Calibrated` values are
-defaults that should be validated by backtest before live use.
+The strategy rules implemented here are distilled in `docs/` — start with
+`docs/README.md` (reading order) and `docs/08-architecture-decisions.md` (what
+was built and why). Constants in `config.py` cite their source in the rulebook
+(`docs/04`); `Calibrated` values are defaults validated (or awaiting validation)
+per the evidence record in `docs/07`.
 
 ## Sharing / licensing notes
 

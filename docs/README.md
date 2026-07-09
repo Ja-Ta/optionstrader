@@ -1,15 +1,19 @@
 # Working Documents — Elias Cash-Generation Strategy
 
-Deep-dive analysis of `options-trading-strategy.md` (Samir Elias, *Generate Thousands in Cash on Your Stocks Before Buying or Selling Them*, 3rd rev. ed., 2007). These documents distill the book's complete system into working material for building an options trading application.
+Deep-dive analysis of the reference strategy (Samir Elias, *Generate Thousands in Cash on Your Stocks Before Buying or Selling Them*, 3rd rev. ed., 2007) and the record of the application built from it. Docs 01–05 distill the strategy (the spec); 06 specifies the one extension; 07–08 document the software and its evidence.
+
+**Reading order for newcomers:** 01 (what the strategy is) → 08 (what was built and why) → 04 (the rulebook the code implements) → 07 (what's validated vs. assumed).
 
 | Document | Purpose |
 |---|---|
 | [01-strategy-overview.md](01-strategy-overview.md) | What the strategy actually is — the core engine and its supporting layers, explained end to end |
 | [02-why-it-works.md](02-why-it-works.md) | The author's rationale for why it's successful, plus an independent critical assessment of which claims hold up |
-| [03-implementation-guide.md](03-implementation-guide.md) | How to realistically implement it today — workflow, portfolio structure, modern-market adaptations, and what an application must automate |
-| [04-key-rules-reference.md](04-key-rules-reference.md) | The consolidated rulebook — every numeric threshold, formula, signal, and decision rule in the book |
+| [03-implementation-guide.md](03-implementation-guide.md) | The original build blueprint — workflow, portfolio structure, modern-market adaptations, and the build map (now annotated with per-item status) |
+| [04-key-rules-reference.md](04-key-rules-reference.md) | The consolidated rulebook — every numeric threshold, formula, signal, and decision rule in the book; `config.py` constants trace here |
 | [05-success-metrics.md](05-success-metrics.md) | How the book defines and measures success, and what realistic targets look like |
-| [06-screening-module.md](06-screening-module.md) | **Extension (not from the book):** modified 20/20/20 capability screen for selecting long-term account candidates — fills the book's selection gap; all trading rules remain the book's |
+| [06-screening-module.md](06-screening-module.md) | **Extension (not from the book):** the 20/20/20 capability screen for long-term candidates — including the feasibility finding that reshaped it |
+| [07-validation-findings.md](07-validation-findings.md) | The backtest evidence record — sweeps, threshold tuning, CD-layer verdicts, known biases, and the open validation questions |
+| [08-architecture-decisions.md](08-architecture-decisions.md) | **What was built and why** — the system map, every significant design decision with its rationale, deliberate non-features, and the roadmap |
 
 ## One-paragraph summary
 

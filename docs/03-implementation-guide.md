@@ -85,22 +85,32 @@ The book is from 2007. Adaptations a realistic implementation should make:
 
 ## 6. What an application must automate (build map)
 
+> **Status (2026-07): built.** This section was the original blueprint; the
+> application now exists (see docs/08-architecture-decisions.md for what was
+> built and why, docs/07-validation-findings.md for the backtest evidence).
+> Per-item status is marked below: ✅ built · ⚠ partial · ✗ deliberately not
+> built (rationale in docs/08 §4) · ⏳ pending a user decision.
+
 **Tier 1 — the core engine (highest value, fully mechanical):**
-- Indicator pipeline: MA(10)/EMA(20)/EMA(30), 20-day CMF, volume stats, support/resistance detection.
-- Signal engine implementing §4's state machine per holding.
-- Strike/expiration selector: resistance/support map → strike one level beyond; month chosen by the 2×-premium rule + open interest + event calendar.
-- Premium tracker: every short option monitored against its 25%-buy-back trigger, 3/4-ITM+2-week assignment trigger, and event calendar.
-- Cost-basis ledger per position (premium-adjusted basis, the book's core success metric) alongside honest mark-to-market P&L.
+- ✅ Indicator pipeline: MA(10)/EMA(20)/EMA(30), 20-day CMF, volume stats, support/resistance detection (`indicators/`).
+- ✅ Signal engine implementing §4's state machine per holding (`signals/engine.py`).
+- ✅ Strike/expiration selector: resistance/support map → strike one level beyond; month chosen by the 2×-premium rule + open interest + event calendar (`options/selector.py`).
+- ✅ Premium tracker: 25%-buy-back trigger, 3/4-ITM+2-week assignment watch, event calendar (`options/tracker.py`).
+- ✅ Cost-basis ledger with premium-adjusted basis alongside honest mark-to-market (`portfolio/ledger.py`).
 
 **Tier 2 — entries and portfolio:**
-- Half/half put-sale planner for new positions; 2%-risk position sizer; 8-stock long-term portfolio manager; CD-chart calculator with the two sell tests and two buy tests.
-- Short-term scanner (10 conditions) with eliminate/watch/enter triage queue.
+- ✅ Half/half put-sale planner (`options/planner.py`); 2%-risk position sizer; CD-chart calculator with the sell/buy tests (`indicators/cd.py`).
+- ✅ Short-term scanner (10 conditions) with eliminate/watch/enter triage (`scanner/scanner.py`), plus the Ch-18 timing toolkit annotating its hits (`indicators/shortterm.py`).
+- ⚠ 8-stock long-term portfolio manager: positions carry the long/short-term account split, but the ≤8 cap and portfolio-level notional checks are not yet enforced (roadmap).
 
 **Tier 3 — episodic plays (optional modules):**
-- Short-interest screen + CMF/MA filter; earnings-squeeze structurer ($0.20 call cap, 10% budget rule); straddle/strangle scanners (strike-proximity + earnings date; MAC channel); OI-imbalance expiration monitor.
+- ✅ Short-interest screen + CMF/MA filter with ITM-put-ladder and capped earnings-call suggestions (`scanner/squeeze.py`, `data/short_interest.py`).
+- ✗ OI-imbalance expiration monitor — assessed as a decayed edge; deliberately not built.
+- ⏳ Earnings-straddle scanner and MAC channel strangles — specified in docs/04 §4, buildable on demand.
 
 **Tier 4 — validation (should come before live sizing):**
-- Backtester for the core engine and each timing gate, benchmarked against buy-and-hold and against BXM/PUT-style naive systematic writing, to measure what the book's timing rules actually add.
+- ✅ Backtester with simulated broker, synthetic Black-Scholes pricing, buy-and-hold and naive-covered-call benchmarks, multi-ticker sweeps, and threshold grid search (`backtest/`). Findings and open questions: docs/07.
+- ⏳ Validation on REAL historical option chains — pending a paid data feed; the single most important open item before live sizing.
 
 ## 7. Realistic guardrails (independent of the book)
 

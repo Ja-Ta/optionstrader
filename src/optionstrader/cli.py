@@ -1,11 +1,13 @@
-"""CLI entry points.
+"""CLI entry points — one command per workflow stage (see docs/08 §1).
 
-  optionstrader analyze TICKER [--shares N] [--willing-to-add]
-      Fetch daily data (yfinance), compute indicators + levels, run the
-      decision state machine, print the assessment.
+  FIND     screen (capability) · scan (reversals + timing) · squeeze (SI build)
+  ENTER    plan (half/half put tranches) · record (log fills, gated)
+  MANAGE   daily (the after-close routine; file/email delivery) · analyze
+  EXIT     cd (relative-strength deterioration) · record · status
+  VERIFY   backtest (3-strategy comparison, synthetic pricing)
 
-  optionstrader status [--price TICKER=PX ...]
-      Show the portfolio ledger (portfolio.json): basis, premium, MTM.
+Run `optionstrader <command> -h` for flags. All commands obtain market data
+via data.get_provider() (env-selectable, cached); none place orders.
 """
 
 from __future__ import annotations
