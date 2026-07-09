@@ -20,10 +20,11 @@ import pandas as pd
 
 from ..analysis import build_snapshot
 from ..config import Config, DEFAULT
+from ..indicators import assess_cd, detect_levels, nearest_resistance, nearest_support
+from ..indicators.moving_averages import TrendState
+from ..options.selector import select_call_strike, select_put_strike
 from ..signals import Action, assess
 from ..signals.states import ShortOptionView
-from ..indicators import detect_levels, nearest_resistance, nearest_support
-from ..options.selector import select_call_strike, select_put_strike
 from .broker import SimBroker
 from .pricing import SyntheticPricer, pick_expiry, strike_grid
 
@@ -68,13 +69,45 @@ class NaiveCoveredCall(Strategy):
 
 
 class EliasEngine(Strategy):
-    """Drives the Tier-1 state machine each bar and executes its actions."""
+    """Drives the Tier-1 state machine each bar and executes its actions.
+
+    Pass `index_close` (daily closes of the stock's benchmark index) to enable
+    the CD relative-strength re-entry gate: after a stop-out/assignment, a
+    surge-point re-entry is BLOCKED while CD says sell_defend (the stock still
+    underperforms its index). 2026-07 validation: repaired the whipsaw names
+    (FCX/INTC/F) and transformed NVDA/PLTR, cost AMD; ~neutral in aggregate.
+
+    cd_exits=True additionally lets CD deterioration EXIT positions —
+    EXPERIMENTAL and default-off: validation showed it guts trending winners
+    (median return 43%→16%), because sell test (a) fires for any stock merely
+    lagging an index bull run and CMF<0 is weak confirmation. Needs a stricter
+    confirmation design before it can be trusted.
+
+    Without an index series the engine behaves exactly as before.
+    """
 
     name = "elias_engine"
 
-    def __init__(self, willing_to_add: bool = False, cfg: Config = DEFAULT):
+    def __init__(self, willing_to_add: bool = False, cfg: Config = DEFAULT,
+                 index_close: pd.Series | None = None, cd_exits: bool = False):
         self.willing_to_add = willing_to_add
         self.cfg = cfg
+        self.index_close = index_close
+        # 2026-07 validation: the re-entry gate helped the whipsaw names but
+        # CD-triggered exits gutted trending winners (sell test (a) is true of
+        # most stocks in an index bull run; CMF<0 is weak confirmation).
+        # cd_exits=False keeps only the re-entry gate.
+        self.cd_exits = cd_exits
+        if index_close is not None:
+            self.name = "elias_engine_cd" if cd_exits else "elias_engine_cd_gate"
+
+    def _cd(self, history: pd.DataFrame):
+        if self.index_close is None:
+            return None
+        idx = self.index_close.loc[: history.index[-1]]
+        if len(idx) < 60:
+            return None
+        return assess_cd(history["close"], idx)
 
     def _short_views(self, broker: SimBroker, close: float, today: date, closes: pd.Series, pricer) -> list[ShortOptionView]:
         return [
@@ -99,10 +132,14 @@ class EliasEngine(Strategy):
             return
 
         # Re-entry after assignment/stop: the book's "price surge point" —
-        # MA(10) crossing up through EMA(20) with non-negative money flow.
+        # MA(10) crossing up through EMA(20) with non-negative money flow —
+        # GATED by CD: never re-enter a stock still underperforming its index.
         if broker.shares == 0:
             snap = build_snapshot("BT", history, cfg=self.cfg)
             if snap.ma10_crossed_up_ema20 and snap.cmf >= 0:
+                cd = self._cd(history)
+                if cd is not None and cd.state == "sell_defend":
+                    return  # relative weakness persists — the whipsaw guard
                 lots = int(broker.cash // (close * 100))
                 if lots > 0:
                     broker.buy_stock(lots * 100, close, today, "re-entry@surge-point")
@@ -123,6 +160,28 @@ class EliasEngine(Strategy):
             cfg=self.cfg,
         )
         result = assess(snap, self.cfg)
+
+        # CD long-term exit (the book: CD deterioration usually marks the
+        # long-term reversal — "it is when you sell that counts").
+        cd = self._cd(history) if self.cd_exits else None
+        if cd is not None and cd.state == "sell_defend" and broker.shares > 0:
+            confirmed = (
+                snap.trend == TrendState.DOWNTREND
+                or snap.ma10_crossed_down_ema20
+                or snap.cmf < 0
+            )
+            if confirmed:
+                for p in list(broker.open_calls()):
+                    broker.buy_back(p, pricer.buy_fill("call", close, p.strike, today, p.expiry, closes), today, "CD exit")
+                broker.sell_stock(broker.shares, close, today, "CD exit")
+                return
+            if not broker.open_calls() and broker.shares >= 100:
+                grid = [s for s in strike_grid(close) if s >= close]
+                expiry = pick_expiry(today)
+                if grid and expiry:
+                    prem = pricer.sell_fill("call", close, grid[0], today, expiry, closes)
+                    if prem >= 0.05:
+                        broker.sell_option("call", grid[0], expiry, broker.shares // 100, prem, today, "CD defend")
 
         for action in result.actions:
             if action == Action.ROLL_OR_ACCEPT_ASSIGNMENT:

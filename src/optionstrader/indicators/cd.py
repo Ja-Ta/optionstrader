@@ -100,7 +100,13 @@ def assess_cd(
         ascent = frame.iloc[:peak_i]
         same_price = ascent[abs(ascent["price"] / p_now - 1.0) <= price_match_tol]
         if len(same_price):
-            cd_then = float(same_price["cd"].max())
+            # Price-adjust each historical reading to exactly p_now before
+            # comparing (cd * p_now / p_then): within the match band prices
+            # differ by up to ±tol, and raw CD scales with price, so an
+            # unadjusted comparison fires even when relative strength is
+            # unchanged (e.g. against a flat index).
+            adjusted = same_price["cd"] * (p_now / same_price["price"])
+            cd_then = float(adjusted.max())
             if cd_now < cd_then * (1 - cd_margin):
                 sell.append(
                     f"CD {cd_now:.3f} now vs {cd_then:.3f} at the same price "
