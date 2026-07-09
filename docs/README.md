@@ -14,6 +14,7 @@ Deep-dive analysis of the reference strategy (Samir Elias, *Generate Thousands i
 | [06-screening-module.md](06-screening-module.md) | **Extension (not from the book):** the 20/20/20 capability screen for long-term candidates — including the feasibility finding that reshaped it |
 | [07-validation-findings.md](07-validation-findings.md) | The backtest evidence record — sweeps, threshold tuning, CD-layer verdicts, known biases, and the open validation questions |
 | [08-architecture-decisions.md](08-architecture-decisions.md) | **What was built and why** — the system map, every significant design decision with its rationale, deliberate non-features, and the roadmap |
+| [09-book-to-code-map.md](09-book-to-code-map.md) | **Traceability matrix** — every critical strategy point mapped to its implementation location (or its recorded omission), with worked-example test anchors |
 
 ## One-paragraph summary
 

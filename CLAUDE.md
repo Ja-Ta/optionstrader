@@ -40,6 +40,7 @@ This repo is intended to be shareable: `options-trading-strategy.md` (copyrighte
 - `docs/04-key-rules-reference.md` — every numeric rule/formula from the book, with OCR-ambiguous values flagged. **Any constant in `config.py` must trace to a rule here.**
 - `docs/03-implementation-guide.md` §4 is the decision-matrix spec that `signals/engine.py` implements; §6 is the build map, annotated with per-item status (everything built except items marked ⏳/✗).
 - `docs/08-architecture-decisions.md` — what was built and why: system map, design decisions D1–D9, deliberate non-features, roadmap. Read it before proposing structural changes; add a decision entry when making one.
+- `docs/09-book-to-code-map.md` — strategy-point → module traceability matrix (with the omissions table). Update its rows when adding/moving strategy logic.
 - `docs/06-screening-module.md` — the 20/20/20 candidate screen, an extension **not** from the book; keep it upstream of, and separate from, the book's rules.
 - `docs/07-validation-findings.md` — the backtest evidence record (sweeps, tuning, CD layer verdicts, open questions). Update it whenever a validation run changes a default.
 - `options-trading-strategy.md` — raw OCR of the book (~9,800 lines); use the docs instead unless verifying a flagged number.
