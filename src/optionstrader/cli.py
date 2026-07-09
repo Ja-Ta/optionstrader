@@ -183,6 +183,23 @@ def cmd_scan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_squeeze(args: argparse.Namespace) -> int:
+    from .data import get_provider
+    from .scanner import screen_squeeze
+
+    reports = screen_squeeze(args.tickers, get_provider())
+    candidates = [r for r in reports if r.verdict == "candidate"]
+    for r in reports:
+        if r.verdict != "eliminate" or args.verbose:
+            print(r.summary())
+    print(f"\n{len(candidates)} candidate(s), "
+          f"{sum(1 for r in reports if r.verdict == 'watch')} watch, "
+          f"{sum(1 for r in reports if r.verdict == 'eliminate')} eliminated of {len(reports)}")
+    print("book cadence: ONE squeeze candidate per month is enough; supply the "
+          "published biggest-SI-increase list as the universe")
+    return 0
+
+
 def cmd_cd(args: argparse.Namespace) -> int:
     from .data import get_provider
     from .indicators import assess_cd, cd_series
@@ -343,6 +360,11 @@ def main(argv: list[str] | None = None) -> int:
     p_sn.add_argument("--max-price", type=float, default=10.0, help="scale to account size")
     p_sn.add_argument("--verbose", action="store_true", help="show non-passers with failed conditions")
     p_sn.set_defaults(func=cmd_scan)
+
+    p_sq = sub.add_parser("squeeze", help="short-squeeze screen: SI build + accumulation filter, ITM-put ladder")
+    p_sq.add_argument("tickers", nargs="+", help="candidate list (published biggest-SI-increase names)")
+    p_sq.add_argument("--verbose", action="store_true", help="also show eliminated names")
+    p_sq.set_defaults(func=cmd_squeeze)
 
     p_cd = sub.add_parser("cd", help="weekly CD relative-strength chart (long-term exit tool)")
     p_cd.add_argument("ticker")
