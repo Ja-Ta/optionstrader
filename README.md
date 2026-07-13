@@ -21,7 +21,7 @@ plain-language concepts and a realistic first-month walkthrough (paper-trade fir
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -q          # 125 offline tests, no network needed
+.venv/bin/python -m pytest -q          # 160 offline tests, no network needed
 .venv/bin/optionstrader analyze AAPL --levels
 ```
 
@@ -109,6 +109,7 @@ scanner/         10-condition reversal scan + triage; short-squeeze screen
 data/            provider interface, yfinance default, cache/retry, factory, template
 backtest/        simulated broker, synthetic pricing, strategy comparison, metrics
 daily.py         the after-close routine; reporting.py — file/email delivery
+webapp/          optional web UI ([ui] extra) — a second front end over the same library
 ```
 
 The strategy rules implemented here are distilled in `docs/` — start with

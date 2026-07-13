@@ -62,7 +62,8 @@ prices (docs/07 §4), and an advisory system is safe to share publicly.
 **D4 — All engine logic is offline-testable.** Indicators, the state
 machine, selectors, the ledger, the backtester, and every screen verdict
 run on plain DataFrames; network access exists only behind the provider
-interface. The test suite (125 tests) needs no keys and no market data,
+interface. The test suite (160 tests, including the web UI's against stub
+providers) needs no keys and no market data,
 which is also why CI is trivial. *Why:* determinism and testability were
 prerequisites for trusting any of the rule enforcement.
 

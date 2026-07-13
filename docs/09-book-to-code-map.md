@@ -15,7 +15,7 @@ system (1030/102030, CMF, momentum-fade), its entry method (half/half put
 selling), its exit tools (CD charts, 15% stop), its money management
 (2% sizing, naked-call ban), its two-account architecture, its Chapter-18/19
 short-term toolkit and scans, and its short-squeeze play are **implemented
-and tested** (125 offline tests). A handful of episodic plays and
+and tested** (160 offline tests). A handful of episodic plays and
 chart-reading techniques are **deliberately omitted** (§4) — each with a
 recorded reason — and two book behaviors are **partially implemented** with
 the gap noted. Nothing from the book was silently dropped: every known rule

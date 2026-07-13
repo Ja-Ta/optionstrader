@@ -56,7 +56,7 @@ each signal when you're curious.
 git clone https://github.com/Ja-Ta/optionstrader && cd optionstrader
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -q        # 125 tests should pass — no keys needed
+.venv/bin/python -m pytest -q        # 160 tests should pass — no keys needed
 ```
 
 Create your watchlist (tickers you'd genuinely consider owning):
@@ -75,6 +75,12 @@ crontab -e                           # add:  45 16 * * 1-5 /path/to/optionstrade
 
 Everything below uses `.venv/bin/optionstrader ...`; alias it to save typing:
 `alias ot=$PWD/.venv/bin/optionstrader`
+
+Prefer a browser? Every command below is also available in an optional local
+web UI with the same rules and the same ledger — install with
+`.venv/bin/pip install -e ".[ui]"`, run `.venv/bin/optionstrader-ui`, open
+http://127.0.0.1:8747. See docs/11 for the full guide. This walkthrough uses
+the CLI; the concepts transfer one-to-one.
 
 ## 3. Week 1 — find candidates and wait for your pitch
 
@@ -268,3 +274,4 @@ the software — is telling you no.
 | Every rule and number the app enforces | docs/04 |
 | Where a book rule lives in the code | docs/09 |
 | What's proven vs. assumed | docs/07 |
+| The web UI — install, screens, remote access | docs/11 |

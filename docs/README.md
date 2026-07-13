@@ -1,6 +1,6 @@
 # Working Documents — Elias Cash-Generation Strategy
 
-Deep-dive analysis of the reference strategy (Samir Elias, *Generate Thousands in Cash on Your Stocks Before Buying or Selling Them*, 3rd rev. ed., 2007) and the record of the application built from it. Docs 01–05 distill the strategy (the spec); 06 specifies the one extension; 07–08 document the software and its evidence.
+Deep-dive analysis of the reference strategy (Samir Elias, *Generate Thousands in Cash on Your Stocks Before Buying or Selling Them*, 3rd rev. ed., 2007) and the record of the application built from it. Docs 01–05 distill the strategy (the spec); 06 specifies the one extension; 07–09 document the software and its evidence; 10–11 are the user guides.
 
 **Reading order for newcomers:** users start with 10 (the getting-started guide); analysts/developers: 01 (what the strategy is) → 08 (what was built and why) → 04 (the rulebook the code implements) → 07 (what's validated vs. assumed).
 
@@ -16,6 +16,7 @@ Deep-dive analysis of the reference strategy (Samir Elias, *Generate Thousands i
 | [08-architecture-decisions.md](08-architecture-decisions.md) | **What was built and why** — the system map, every significant design decision with its rationale, deliberate non-features, and the roadmap |
 | [09-book-to-code-map.md](09-book-to-code-map.md) | **Traceability matrix** — every critical strategy point mapped to its implementation location (or its recorded omission), with worked-example test anchors |
 | [10-getting-started-guide.md](10-getting-started-guide.md) | **The user guide** — plain-language concepts, setup, and a realistic first-month walkthrough of commands (paper-trade first) |
+| [11-web-ui.md](11-web-ui.md) | **The web UI guide** — the optional browser front end: install, screens, write-safety, running it as a service, security posture |
 
 ## One-paragraph summary
 
