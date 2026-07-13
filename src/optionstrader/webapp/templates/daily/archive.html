@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Daily archive — optionstrader{% endblock %}
+{% block content %}
+<h1>Saved daily reports</h1>
+{% if text is defined %}
+<p><a href="/daily/archive">← all reports</a></p>
+<h2>{{ selected }}</h2>
+<pre class="report">{{ text }}</pre>
+{% else %}
+{% if names %}
+<div class="card">
+  <ul class="plain">
+    {% for n in names %}<li><a href="/daily/archive/{{ n }}">{{ n }}</a></li>{% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="card"><p class="muted">No saved reports yet — the 16:45 cron writes them, or run
+  <code>optionstrader daily --save-dir reports</code>.</p></div>
+{% endif %}
+{% endif %}
+{% endblock %}

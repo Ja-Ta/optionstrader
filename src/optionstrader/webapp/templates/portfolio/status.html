@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Portfolio — optionstrader{% endblock %}
+{% block content %}
+<h1>Portfolio</h1>
+{% if not positions %}
+<div class="card"><p class="muted">No positions in <code>{{ portfolio_path }}</code> —
+  record fills on the <a href="/record">Record</a> page.</p></div>
+{% endif %}
+{% for t, pos in positions %}
+<div class="card" id="{{ t }}">
+  <h2>{{ t }}
+    <span class="badge info">{{ pos.account }}</span>
+    {% if pos.willing_to_add %}<span class="badge good">willing to add</span>{% endif %}
+  </h2>
+  <p>
+    shares <strong>{{ pos.shares }}</strong> ·
+    stock cost <strong>{{ pos.stock_cost | money }}</strong> ·
+    net premium <strong>{{ pos.net_premium | money }}</strong> ·
+    adjusted basis/share <strong>{{ pos.adjusted_basis_per_share | px }}</strong>
+    <span class="muted small">(the book's scoreboard: cost − premium collected)</span>
+  </p>
+
+  {% if pos.open_shorts %}
+  <h2>Open short options</h2>
+  <table>
+    <tr><th>Kind</th><th class="num">Strike</th><th>Expiry</th><th class="num">Contracts</th>
+        <th class="num">Premium/sh</th><th class="num">25% buy-back at ≤</th><th>Opened</th></tr>
+    {% for o in pos.open_shorts %}
+    <tr>
+      <td>{{ o.kind }}</td>
+      <td class="num">{{ o.strike | px }}</td>
+      <td>{{ o.expiry }}</td>
+      <td class="num">{{ o.contracts }}</td>
+      <td class="num">{{ o.premium_collected | px }}</td>
+      <td class="num">{{ (0.25 * o.premium_collected) | px }}</td>
+      <td>{{ o.opened }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  {% if pos.lots %}
+  <h2>Stock lots</h2>
+  <table>
+    <tr><th>Acquired</th><th class="num">Shares</th><th class="num">Price</th><th>Note</th></tr>
+    {% for lot in pos.lots %}
+    <tr><td>{{ lot.acquired }}</td><td class="num">{{ lot.shares }}</td>
+        <td class="num">{{ lot.price | px }}</td><td class="muted">{{ lot.note }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <form class="inline" hx-get="/portfolio/mtm/{{ t }}" hx-target="#mtm-{{ t }}" hx-swap="innerHTML">
+    <label>current price <input type="number" name="price" step="0.01" min="0.01" required></label>
+    <button type="submit">mark to market</button>
+    <span class="htmx-indicator">…</span>
+  </form>
+  <div id="mtm-{{ t }}"></div>
+
+  {% if pos.premium_events %}
+  <details>
+    <summary class="muted">premium history ({{ pos.premium_events | length }} events)</summary>
+    <table>
+      <tr><th>Date</th><th>Action</th><th>Kind</th><th class="num">Strike</th><th>Expiry</th>
+          <th class="num">Contracts</th><th class="num">Per share</th><th class="num">Cash flow</th><th>Note</th></tr>
+      {% for ev in pos.premium_events %}
+      <tr>
+        <td>{{ ev.date }}</td><td>{{ ev.action }}</td><td>{{ ev.kind }}</td>
+        <td class="num">{{ ev.strike | px }}</td><td>{{ ev.expiry }}</td>
+        <td class="num">{{ ev.contracts }}</td><td class="num">{{ ev.per_share | px }}</td>
+        <td class="num">{{ ev.cash_flow | money }}</td><td class="muted">{{ ev.note }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </details>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

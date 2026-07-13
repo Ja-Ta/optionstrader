@@ -22,13 +22,14 @@ An options trading application implementing the cash-generation strategy from Sa
 .venv/bin/optionstrader daily --watchlist TICKER... [--portfolio F]  # the whole after-close routine, one report
 .venv/bin/optionstrader record ACTION TICKER ...              # log fills; keeps ledger + open_shorts in sync
 .venv/bin/optionstrader squeeze TICKER... [--verbose]         # monthly short-squeeze screen + ITM-put ladder
+.venv/bin/optionstrader-ui [--port N] [--portfolio F]         # optional local web UI (needs the [ui] extra)
 ```
 
 ## Scheduled daily run
 
 User crontab runs `scripts/daily_cron.sh` at 16:45 local (ET) weekdays: it executes `daily` with `portfolio.json` + `watchlist.txt`, saves to `reports/daily-YYYY-MM-DD.txt` (+ `latest.txt`), logs to `reports/cron.log`, and emails if `.env.daily` exists (copy `.env.daily.example`; sets SMTP vars + `DAILY_EMAIL_TO`). Never commit `.env.daily`. Email delivery lives in `src/optionstrader/reporting.py`; an email failure still saves the file and exits 1 so cron logs show it.
 
-Setup from scratch: `python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"`
+Setup from scratch: `python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"` (add `,ui` inside the brackets for the web UI; without it the webapp tests skip and everything else works).
 
 ## Sharing constraints
 
@@ -60,6 +61,7 @@ This repo is intended to be shareable: `options-trading-strategy.md` (copyrighte
 - **`backtest/`** — Tier 4: `pricing.py` (SYNTHETIC option premiums — Black-Scholes on trailing realized vol × an IV-premium multiplier; no free historical chains exist, so results measure timing-rule value, not exact premiums — keep this caveat in any output), `broker.py` (simulated fills/assignment; expiry-only settlement), `strategies.py` (BuyAndHold and NaiveCoveredCall benchmarks vs EliasEngine, which drives the Tier-1 state machine plus roll-up and surge-point re-entry; pass index_close to enable the CD re-entry gate — default; cd_exits=True is EXPERIMENTAL and validated harmful as designed, see docs/07), `engine.py` (daily loop), `metrics.py` (CAGR/Sharpe/drawdown/premium stats + comparison table).
 - **`daily.py`** — the after-close routine (docs/03 §3) as one run: per holding, state machine + tracker alerts priced from live chains (buy-back side = ask) + 15% stop check + CD state (long-term accounts only) + earnings countdown; then the Ch-19 scan over the watchlist (holdings excluded); emits one action list ordered by urgency (expired/stop/NOW alerts → SOON alerts/CD deterioration → state-machine actions/scan ENTER hits). Open short options live in `Position.open_shorts` (explicit state, separate from the `premium_events` history). Record fills ONLY via the `record` command / `Position.record_*` methods — they keep both in sync and enforce the book's gates at write time (naked-call refusal counts existing shorts; stock sales refuse while short calls are open; put sales beyond 2x held warn; assignments move stock lots at the strike).
 - **`analysis.py`** — glue: OHLCV frame → `Snapshot` → `assess()`. `cli.py` — argparse entry points.
+- **`webapp/`** — the optional web UI (docs/08 D10): FastAPI + Jinja2 + htmx, vendored assets, needs the `[ui]` extra, launched only via `optionstrader-ui`. Imports core; NOTHING in core may import it (guard test in `tests/test_webapp_app.py`). Adds no strategy logic — every route calls the same library functions the CLI does, and record forms write through the same gated `Position.record_*` methods. Webapp-specific policy lives in `webapp/services/`: `portfolio_io.locked_portfolio()` (flock + atomic-replace writes — never call `Portfolio.save()` directly from a route), `jobs.py` (in-memory thread registry for backtest/daily/scan/squeeze/screen; results lost on restart by design), `charts.py` (uPlot payloads). Providers are constructed fresh per request/job (the cache's sqlite connection is single-thread-only). Webapp tests use stubs from `tests/webapp_stubs.py` and skip when fastapi isn't installed.
 
 Tests (`tests/`) use synthetic OHLCV from `conftest.py` and never touch the network. Note: functions named `test_*` in library code get collected by pytest when imported into test modules — hence `evaluate_1030`, not `test_1030`.
 

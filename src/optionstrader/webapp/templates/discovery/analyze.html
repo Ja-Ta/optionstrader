@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Analyze — optionstrader{% endblock %}
+{% block content %}
+<h1>Analyze</h1>
+<p class="muted small">The decision engine on one ticker: snapshot, state, actions, and detected
+support/resistance levels — the same run as <code>optionstrader analyze</code>.</p>
+
+<div class="card">
+  <form class="inline" hx-get="/analyze/run" hx-target="#result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required placeholder="AAPL"></label>
+    <label>shares held <input type="number" name="shares" value="0" min="0"></label>
+    <label class="check"><input type="checkbox" name="willing_to_add" value="true"> willing to add</label>
+    <label class="check"><input type="checkbox" name="short_term" value="true"> Ch-18 short-term block</label>
+    <button type="submit">analyze</button>
+    <span class="htmx-indicator">fetching…</span>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Jobs — optionstrader{% endblock %}
+{% block content %}
+<h1>Jobs</h1>
+<p class="muted small">In-memory job registry — running and finished jobs are lost when the server restarts; re-run if needed.</p>
+{% if jobs %}
+{% for j in jobs %}
+<div class="card">
+  <strong>{{ j.kind }}</strong> — {{ j.label }}
+  <span class="muted small">started {{ j.started.strftime("%H:%M:%S") }} · {{ "%.0f" | format(j.elapsed) }}s</span>
+  <div id="job-{{ j.id }}" hx-get="/jobs/{{ j.id }}" hx-trigger="load" hx-swap="innerHTML"></div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card"><p class="muted">No jobs yet.</p></div>
+{% endif %}
+{% endblock %}

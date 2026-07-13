@@ -1,0 +1,56 @@
+{% set report = result %}
+<div class="card">
+  <h2>Daily report — {{ report.as_of }}</h2>
+
+  {% if report.action_items %}
+  <h2>Action items <span class="muted small">(most urgent first)</span></h2>
+  <ol>
+    {% for item in report.action_items %}
+    <li class="{{ 'urgency-0' if 'EXPIRED' in item or 'sell and replace' in item or 'buy back now' in item else 'urgency-1' }}">{{ item }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="box ok">No action items — no signals today.</div>
+  {% endif %}
+
+  <h2>Holdings ({{ report.holdings | length }})</h2>
+  {% for h in report.holdings %}
+  <div class="card">
+    {% if h.error %}
+    <strong>{{ h.ticker }}</strong> <div class="box error">ERROR — {{ h.error }}</div>
+    {% else %}
+    <strong>{{ h.ticker }} @ {{ h.price | px }}</strong>
+    <span class="badge info">{{ h.state }}</span>
+    {% if h.cd_state != "n/a" %}
+      <span class="badge {{ 'bad' if h.cd_state == 'sell_defend' else ('good' if h.cd_state == 'buy_strength' else 'info') }}">CD {{ h.cd_state }}</span>
+    {% endif %}
+    {% if h.days_to_earnings is not none %}<span class="badge warn">earnings in {{ h.days_to_earnings }}d</span>{% endif %}
+    {% if h.stop_breached %}<span class="badge bad">15% STOP BREACHED</span>{% endif %}
+    {% if h.alerts %}
+    <ul class="plain">
+      {% for a in h.alerts %}
+      <li class="{{ 'urgency-0' if '[NOW ' in a else ('urgency-1' if '[SOON]' in a else 'urgency-2') }}">{{ a }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if h.actions %}<p>actions: {% for a in h.actions %}<span class="badge info">{{ a }}</span> {% endfor %}</p>{% endif %}
+    {% if h.notes %}<ul class="plain muted">{% for n in h.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+    {% if h.cd_signals %}<ul class="plain muted">{% for s in h.cd_signals %}<li>CD: {{ s }}</li>{% endfor %}</ul>{% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <h2>Watchlist scan — {{ report.scan_hits | length }} of {{ report.scanned }} passed</h2>
+  {% for r in report.scan_hits %}
+  <div class="card">
+    <strong>{{ r.ticker }}</strong>
+    <span class="badge {{ 'good' if r.bucket == 'enter' else ('warn' if r.bucket == 'watch' else 'bad') }}">{{ r.bucket }}</span>
+    @ {{ r.price | px }} · vol {{ "%.1f" | format(r.volume_ratio) }}x avg · day {{ r.day_change | pct }}
+    <ul class="plain">{% for reason in r.reasons %}<li>- {{ reason }}</li>{% endfor %}</ul>
+    {% if r.timing %}<p class="muted small">timing: {{ r.timing }}</p>{% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No scan hits{% if report.scanned %} of {{ report.scanned }} scanned{% endif %} —
+    zero on an arbitrary day is normal; the setup is rare.</p>
+  {% endfor %}
+</div>

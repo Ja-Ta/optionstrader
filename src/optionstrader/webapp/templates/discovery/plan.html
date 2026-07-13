@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Plan — optionstrader{% endblock %}
+{% block content %}
+<h1>Half/half put-sale entry plan</h1>
+<p class="muted small">Tranche strikes below successive supports from the live chain; effective and
+blended costs; cash-secured gate. Plan only — no orders. Same as <code>optionstrader plan</code>.</p>
+
+<div class="card">
+  <form class="inline" hx-get="/plan/run" hx-target="#result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required placeholder="AAPL"></label>
+    <label>target shares <input type="number" name="shares" required min="100" step="100" value="200"></label>
+    <label>cash available <input type="number" name="cash" step="100" min="0" placeholder="optional"></label>
+    <button type="submit">plan</button>
+    <span class="htmx-indicator">fetching chains…</span>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

@@ -1,0 +1,56 @@
+<div class="card">
+  <h2>{{ snap.ticker }} — {{ snap.as_of }} · close {{ snap.price | px }}</h2>
+
+  <div class="chart" data-chart="price">
+    <script type="application/json">{{ chart | tojson }}</script>
+  </div>
+  <p class="muted small">last {{ chart.x | length }} closes; dashed lines = detected levels
+    (<span style="color:var(--good)">support</span> / <span style="color:var(--bad)">resistance</span>)</p>
+
+  <div class="grid2">
+    <div>
+      <h2>Snapshot</h2>
+      <table>
+        <tr><th>trend</th><td>{{ snap.trend.value }}</td></tr>
+        <tr><th>MA(10) slope</th><td>{{ snap.ma10_slope.value }}</td></tr>
+        <tr><th>CMF (20d)</th><td>{{ "%+.3f" | format(snap.cmf) }} <span class="badge {{ 'good' if snap.cmf_band.value == 'positive' else ('bad' if snap.cmf_band.value == 'negative' else 'info') }}">{{ snap.cmf_band.value }}</span></td></tr>
+        <tr><th>volume ratio</th><td>{{ "%.2f" | format(snap.volume.volume_ratio) }}x avg</td></tr>
+        <tr><th>above 20d low</th><td>{{ snap.pct_above_20d_low | pct }}</td></tr>
+        <tr><th>shakeout-window move</th><td>{{ snap.drop_pct_window | pct }}</td></tr>
+        <tr><th>support / resistance</th>
+            <td>{{ snap.nearest_support | px }} / {{ snap.nearest_resistance | px }}</td></tr>
+      </table>
+    </div>
+    <div>
+      <h2>Assessment</h2>
+      <p><span class="badge info">{{ result.state.value }}</span></p>
+      <ul class="plain">
+        {% for a in result.actions %}<li><span class="badge good">{{ a.value }}</span></li>{% endfor %}
+      </ul>
+      <ul class="plain muted">
+        {% for n in result.notes %}<li>{{ n }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  {% if levels %}
+  <h2>Levels</h2>
+  <table>
+    <tr><th class="num">Price</th><th>Role</th><th class="num">Touches</th><th class="num">Span</th><th class="num">Strength</th></tr>
+    {% for lv in levels %}
+    <tr>
+      <td class="num">{{ lv.price | px }}</td>
+      <td>{{ lv.role(snap.price) }}</td>
+      <td class="num">{{ lv.touches }}</td>
+      <td class="num">{{ lv.span_days }}d</td>
+      <td class="num">{{ "%.1f" | format(lv.strength()) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  {% if short_term_lines %}
+  <h2>Short-term toolkit <span class="muted small">(Ch-18 — decides WHEN/WHERE, never WHETHER)</span></h2>
+  <ul class="plain">{% for line in short_term_lines %}<li>{{ line }}</li>{% endfor %}</ul>
+  {% endif %}
+</div>

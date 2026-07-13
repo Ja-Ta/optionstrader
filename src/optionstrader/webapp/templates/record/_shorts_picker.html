@@ -1,0 +1,13 @@
+{% if shorts %}
+<p class="muted">open shorts for {{ ticker }} — click to fill the form:</p>
+<p>
+  {% for o in shorts %}
+  <button type="button" class="badge info"
+          onclick="fillShort('{{ prefix }}', '{{ o.kind }}', '{{ o.strike }}', '{{ o.expiry }}')">
+    {{ o.contracts }}x {{ o.strike | px }} {{ o.kind }} {{ o.expiry }}
+  </button>
+  {% endfor %}
+</p>
+{% else %}
+<p class="muted">no open shorts on file for {{ ticker }}</p>
+{% endif %}

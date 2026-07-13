@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}CD — optionstrader{% endblock %}
+{% block content %}
+<h1>CD relative strength</h1>
+<p class="muted small">Weekly stock/index ratio normalized 1–10 (Monday-anchored) — the long-term
+account's exit tool. Same as <code>optionstrader cd</code>.</p>
+
+<div class="card">
+  <form class="inline" hx-get="/cd/run" hx-target="#result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required placeholder="AAPL"></label>
+    <label>index <input name="index_symbol" value="{{ index_symbol }}" size="8"></label>
+    <label>days <input type="number" name="days" value="420" min="120"></label>
+    <label>table weeks <input type="number" name="weeks" value="16" min="4"></label>
+    <button type="submit">run</button>
+    <span class="htmx-indicator">fetching…</span>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

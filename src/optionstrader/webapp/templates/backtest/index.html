@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Backtest — optionstrader{% endblock %}
+{% block content %}
+<h1>Backtest</h1>
+<p class="muted small">Three-strategy comparison over daily bars. Same as
+<code>optionstrader backtest</code>; runs as a background job (minutes for long lookbacks).</p>
+
+<div class="card">
+  <form class="inline" hx-post="/backtest" hx-target="#result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required placeholder="AAPL"></label>
+    <label>strategy
+      <select name="strategy">
+        <option value="all">all</option>
+        <option value="buyhold">buy &amp; hold</option>
+        <option value="naive-cc">naive covered call</option>
+        <option value="elias">elias engine</option>
+      </select>
+    </label>
+    <label>days <input type="number" name="days" value="750" min="120"></label>
+    <label>cash <input type="number" name="cash" value="100000" step="1000" min="1000"></label>
+    <label>IV premium <input type="number" name="iv_premium" value="1.20" step="0.05" min="0.5"></label>
+    <label>friction <input type="number" name="friction" value="0.05" step="0.01" min="0"></label>
+    <label class="check"><input type="checkbox" name="willing_to_add" value="true"> willing to add (puts)</label>
+    <label class="check"><input type="checkbox" name="trades" value="true"> trade log</label>
+    <button type="submit">run backtest</button>
+    <span class="htmx-indicator">starting…</span>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

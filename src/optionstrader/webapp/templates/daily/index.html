@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Daily — optionstrader{% endblock %}
+{% block content %}
+<h1>Daily after-close routine</h1>
+<p class="muted small">Holdings: state machine + tracker alerts + 15% stop + CD + earnings countdown,
+then the Ch-19 scan over the watchlist (holdings excluded). Same run the 16:45 cron does.
+<a href="/daily/archive">saved reports →</a></p>
+
+<div class="card">
+  <form hx-post="/daily" hx-target="#result" hx-swap="innerHTML">
+    <div class="inline" style="display:flex; flex-wrap:wrap; gap:0.7rem; align-items:end;">
+      <label>watchlist (tickers, space/comma separated)
+        <textarea name="watchlist" placeholder="AAPL MSFT ...">{{ watchlist }}</textarea>
+      </label>
+      <label>index <input name="index_symbol" value="{{ index_symbol }}" size="8"></label>
+      <label>scan max price <input type="number" name="scan_max_price" value="10.0" step="0.5" min="1"></label>
+      <button type="submit">run now</button>
+      <span class="htmx-indicator">starting…</span>
+    </div>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

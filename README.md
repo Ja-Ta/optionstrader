@@ -40,6 +40,25 @@ python3 -m venv .venv
 | `daily --watchlist ...` | The whole after-close routine in one report (file/email delivery) |
 | `backtest TICKER` | Compare buy-and-hold vs naive covered calls vs the full engine |
 
+## Web UI (optional)
+
+Every command above is also available in a local web UI — same library, same
+rules, same `portfolio.json`; the CLI keeps working unchanged. Dashboards for
+the portfolio and daily report, charts (price + support/resistance, weekly CD,
+backtest equity curves), and gated record forms (a naked-call sale is refused
+in the browser exactly as on the command line).
+
+```bash
+.venv/bin/pip install -e ".[ui]"
+.venv/bin/optionstrader-ui              # http://127.0.0.1:8747
+```
+
+Flags: `--portfolio`, `--watchlist-file`, `--reports-dir`, `--index`, `--port`.
+Single local user; binds 127.0.0.1 and has no auth — do not expose it beyond
+localhost. Long runs (backtest, daily, scans) execute as background jobs whose
+results live in memory until the server stops. All assets are vendored
+(htmx, uPlot) — no CDN, works offline.
+
 ## Data providers (pluggable)
 
 All market data flows through one interface (`src/optionstrader/data/provider.py`).

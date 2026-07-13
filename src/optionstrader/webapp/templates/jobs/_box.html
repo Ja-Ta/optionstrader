@@ -1,0 +1,22 @@
+<h2>Jobs</h2>
+{% if jobs %}
+<table>
+  <tr><th>Kind</th><th>Label</th><th>Status</th><th class="num">Elapsed</th></tr>
+  {% for j in jobs %}
+  <tr>
+    <td>{{ j.kind }}</td>
+    <td>{{ j.label }}</td>
+    <td>
+      {% if j.status == "running" %}<span class="badge info">running</span>
+      {% elif j.status == "done" %}<span class="badge good">done</span>
+      {% else %}<span class="badge bad">error</span>{% endif %}
+    </td>
+    <td class="num">{{ "%.0f" | format(j.elapsed) }}s</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="small"><a href="/jobs">all jobs →</a></p>
+{% else %}
+<p class="muted">No jobs yet. Backtests, scans, and daily runs appear here.
+   <span class="small">Results live in memory until the server stops.</span></p>
+{% endif %}

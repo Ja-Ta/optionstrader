@@ -1,0 +1,17 @@
+{% if error %}
+<div class="box error">REFUSED: {{ error }} <span class="muted small">(nothing was written)</span></div>
+{% else %}
+<div class="box ok">
+  {% for line in lines %}{{ line }}<br>{% endfor %}
+</div>
+{% for w in warnings %}
+<div class="box warn">WARNING: {{ w }}</div>
+{% endfor %}
+{% if pos %}
+<div class="box note">
+  position now: {{ pos.shares }} shares, net premium ${{ "%.2f" | format(pos.net_premium) }},
+  adjusted basis {{ pos.adjusted_basis_per_share | px }},
+  open shorts {{ pos.open_shorts | length }}
+</div>
+{% endif %}
+{% endif %}

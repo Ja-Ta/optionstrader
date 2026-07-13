@@ -27,6 +27,11 @@ implementation location, and status: ✅ implemented · ⚠ partial · ✗ omitt
 (see §4) · ◇ extension beyond the book (see §5). File paths are relative to
 `src/optionstrader/`.
 
+**Note on the web UI:** `webapp/` (docs/08 D10) contains **no strategy
+logic** — it renders the outputs of, and records through, the modules mapped
+below. No row in this map points into `webapp/`, and that invariant should
+hold for any future UI work.
+
 ---
 
 ## 1. The core engine

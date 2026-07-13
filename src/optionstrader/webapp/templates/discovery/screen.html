@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Screen — optionstrader{% endblock %}
+{% block content %}
+<h1>20/20/20 capability screen</h1>
+<p class="muted small">Extension screen (docs/06), not from the book — gates on the PUT side only
+(the call-side joint ROI+delta requirement is mathematically infeasible; call legs are diagnostic).
+Advisory shortlist only; willingness-to-own cannot be screened. Same as <code>optionstrader screen</code>.</p>
+
+<div class="card">
+  <form hx-post="/screen" hx-target="#result" hx-swap="innerHTML">
+    <div style="display:flex; flex-wrap:wrap; gap:0.7rem; align-items:end;">
+      <label>tickers <textarea name="tickers" required placeholder="Ticker list, space/comma separated"></textarea></label>
+      <button type="submit">screen</button>
+      <span class="htmx-indicator">starting…</span>
+    </div>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

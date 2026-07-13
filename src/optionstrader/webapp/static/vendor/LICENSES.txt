@@ -1,0 +1,19 @@
+Vendored third-party assets (committed so the UI works fully offline; no CDN).
+
+htmx.min.js — htmx v2.0.4
+  https://github.com/bigskysoftware/htmx
+  License: BSD Zero Clause (0BSD)
+  Copyright (c) 2020, Big Sky Software
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted.
+
+uplot.iife.min.js, uplot.min.css — uPlot v1.6.31
+  https://github.com/leeoniya/uPlot
+  License: MIT
+  Copyright (c) 2025 Leon Sorokin
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, subject to the conditions of the MIT license
+  (see the project repository for the full text).

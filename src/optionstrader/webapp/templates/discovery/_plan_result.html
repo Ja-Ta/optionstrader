@@ -1,0 +1,37 @@
+<div class="card">
+  <h2>{{ plan.ticker }} — {{ plan.as_of }} · price {{ plan.price | px }} · target {{ plan.target_shares }} shares</h2>
+
+  {% if plan.ready %}
+  <div class="box ok"><strong>READY</strong> — sell tranche 1 now.</div>
+  {% else %}
+  <div class="box warn"><strong>WAIT</strong> — conditions for tranche 1 not met yet (see notes).</div>
+  {% endif %}
+
+  {% if plan.tranches %}
+  <table>
+    <tr><th>Tranche</th><th class="num">Contracts × strike</th><th>Expiry</th>
+        <th class="num">Est. premium/sh</th><th class="num">Effective cost</th>
+        <th class="num">Cash required</th><th>Sell trigger</th></tr>
+    {% for tr in plan.tranches %}
+    <tr>
+      <td>{{ tr.label }}</td>
+      <td class="num">{{ tr.contracts }} × {{ tr.strike | px }}</td>
+      <td>{{ tr.expiry }}</td>
+      <td class="num">{{ tr.est_premium | px }}</td>
+      <td class="num">{{ tr.effective_cost | px }}</td>
+      <td class="num">{{ tr.cash_required | money }}</td>
+      <td class="small">{{ tr.trigger }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p>blended effective cost <strong>{{ plan.blended_effective_cost | px }}</strong> ·
+     total est. premium <strong>{{ plan.total_est_premium | money }}</strong></p>
+  {% endif %}
+
+  {% if plan.notes %}
+  <ul class="plain muted">{% for n in plan.notes %}<li>{{ n }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <div class="box note">Plan only — the book's gates still apply before selling: willingness to own
+    at the strike, close before binary events, 25% buy-back after.</div>
+</div>

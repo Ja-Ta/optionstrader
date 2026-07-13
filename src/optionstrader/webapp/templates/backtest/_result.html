@@ -1,0 +1,49 @@
+<div class="card">
+  <h2>{{ result.ticker }} — {{ result.start }} → {{ result.end }}
+    <span class="muted small">({{ result.bars }} bars, {{ result.cash | money }} initial,
+    iv_premium={{ result.iv_premium }}, friction={{ result.friction | pct }})</span></h2>
+
+  <div class="box warn">Option premiums are <strong>SYNTHETIC</strong> (Black-Scholes on realized vol)
+    — this measures timing-rule value, not exact historical premiums.</div>
+
+  <div class="chart" data-chart="equity">
+    <script type="application/json">{{ result.chart | tojson }}</script>
+  </div>
+
+  {% set pct_rows = ["total_return", "cagr", "ann_vol", "max_drawdown", "option_win_rate"] %}
+  {% set money_rows = ["final_equity", "net_premium", "premium_collected"] %}
+  <table>
+    <tr><th>Metric</th>{% for r in result.results %}<th class="num">{{ r.strategy }}</th>{% endfor %}</tr>
+    {% for row in ["total_return", "cagr", "ann_vol", "sharpe", "max_drawdown",
+                   "final_equity", "net_premium", "premium_collected",
+                   "option_trades_closed", "option_win_rate", "n_trades"] %}
+    <tr>
+      <th>{{ row }}</th>
+      {% for r in result.results %}
+      {% set v = r.metrics.get(row) %}
+      <td class="num">
+        {%- if v is none %}—
+        {%- elif row in pct_rows %}{{ v | pct }}
+        {%- elif row in money_rows %}{{ v | money }}
+        {%- else %}{{ v }}
+        {%- endif -%}
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+
+  {% if result.show_trades %}
+  {% for r in result.results %}
+  <details>
+    <summary class="muted">{{ r.strategy }} trades ({{ r.trades | length }})</summary>
+    <table>
+      <tr><th>Date</th><th>What</th><th>Detail</th></tr>
+      {% for t in r.trades %}
+      <tr><td>{{ t.date }}</td><td>{{ t.what }}</td><td class="small">{{ t.detail }}</td></tr>
+      {% endfor %}
+    </table>
+  </details>
+  {% endfor %}
+  {% endif %}
+</div>

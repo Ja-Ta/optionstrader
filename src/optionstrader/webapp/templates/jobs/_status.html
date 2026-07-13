@@ -1,0 +1,10 @@
+{% if job.status == "running" %}
+<div class="box note" hx-get="/jobs/{{ job.id }}" hx-trigger="every 2s" hx-swap="outerHTML">
+  ⏳ {{ job.kind }} — {{ job.label }} · running {{ "%.0f" | format(job.elapsed) }}s
+  <span class="muted small">(no progress % available; results appear here when done)</span>
+</div>
+{% elif job.status == "error" %}
+<div class="box error">✗ {{ job.kind }} — {{ job.label }} failed: {{ job.error }}</div>
+{% else %}
+<div class="box ok">✓ {{ job.kind }} — {{ job.label }} finished in {{ "%.0f" | format(job.elapsed) }}s</div>
+{% endif %}

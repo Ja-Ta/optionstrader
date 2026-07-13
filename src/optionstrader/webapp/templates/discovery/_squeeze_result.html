@@ -1,0 +1,38 @@
+{% set reports = result.reports %}
+{% set candidates = reports | selectattr("verdict", "equalto", "candidate") | list %}
+<div class="card">
+  <h2>Squeeze screen — {{ candidates | length }} candidate(s),
+      {{ reports | selectattr("verdict", "equalto", "watch") | list | length }} watch,
+      {{ reports | selectattr("verdict", "equalto", "eliminate") | list | length }} eliminated of {{ reports | length }}</h2>
+
+  {% for r in reports if r.verdict != "eliminate" or result.verbose %}
+  <div class="card">
+    <strong>{{ r.ticker }}</strong>
+    <span class="badge {{ 'good' if r.verdict == 'candidate' else ('warn' if r.verdict == 'watch' else 'bad') }}">{{ r.verdict }}</span>
+    @ {{ r.price | px }}
+    {% if r.days_to_cover is not none %} · days-to-cover {{ "%.1f" | format(r.days_to_cover) }}{% endif %}
+    {% if r.si_change_pct is not none %} · SI MoM {{ r.si_change_pct | pct }}{% endif %}
+    · CMF {{ "%+.3f" | format(r.cmf) }}
+    {% if r.next_earnings %} · earnings {{ r.next_earnings }}{% endif %}
+    <ul class="plain">{% for reason in r.reasons %}<li>- {{ reason }}</li>{% endfor %}</ul>
+
+    {% if r.itm_put %}
+    <div class="box ok">
+      ITM-put play: sell the {{ r.itm_put.expiry }} {{ r.itm_put.strike | px }} put
+      @ ~{{ r.itm_put.premium | px }} (intrinsic {{ r.itm_put.intrinsic | px }},
+      time value {{ r.itm_put.time_value | px }})
+    </div>
+    {% endif %}
+    {% if r.earnings_call %}
+    <div class="box note">
+      ≤$0.20 earnings-call lottery: {{ r.earnings_call.expiry }} {{ r.earnings_call.strike | px }} call
+      @ ask {{ r.earnings_call.ask | px }}
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">Nothing above eliminate.</p>
+  {% endfor %}
+
+  <div class="box note">Book cadence: ONE squeeze candidate per month is enough.</div>
+</div>

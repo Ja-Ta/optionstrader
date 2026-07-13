@@ -1,0 +1,4 @@
+<div id="poll-{{ job.id }}" data-job-id="{{ job.id }}"
+     hx-get="/jobs/{{ job.id }}" hx-trigger="load" hx-swap="outerHTML">
+  <div class="box note">⏳ {{ job.kind }} — {{ job.label }} submitted…</div>
+</div>

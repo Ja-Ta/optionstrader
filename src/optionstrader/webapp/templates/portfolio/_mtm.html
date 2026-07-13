@@ -1,0 +1,9 @@
+<div class="box note">
+  <strong>{{ ticker }} @ {{ price | px }}</strong> —
+  stock value {{ mtm.stock_value | money }} ·
+  total P&amp;L <strong>{{ mtm.total_pnl | money }}</strong>
+  <span class="muted small">(honest mark-to-market, shown alongside the basis ledger — never instead)</span>
+</div>
+{% if stop_breached %}
+<div class="box error">*** 15% STOP-LOSS BREACHED — book rule: sell and replace (close short calls first) ***</div>
+{% endif %}

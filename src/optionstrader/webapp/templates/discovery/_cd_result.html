@@ -1,0 +1,35 @@
+<div class="card">
+  <h2>{{ ticker }} vs {{ index_symbol }}
+    <span class="badge {{ 'bad' if result.state == 'sell_defend' else ('good' if result.state == 'buy_strength' else 'info') }}">{{ result.state }}</span>
+  </h2>
+  <p class="muted small">{{ result.weeks }} weeks · latest price {{ result.latest_price | px }} ·
+     latest CD {{ "%.3f" | format(result.latest_cd) }}</p>
+
+  <div class="chart" data-chart="cd">
+    <script type="application/json">{{ chart | tojson }}</script>
+  </div>
+  <p class="muted small">weekly price (left axis) and CD 1–10 (right axis)</p>
+
+  {% if result.sell_signals %}
+  <h2>Sell tests</h2>
+  <ul class="plain">{% for s in result.sell_signals %}<li class="urgency-1">{{ s }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if result.buy_signals %}
+  <h2>Buy tests</h2>
+  <ul class="plain">{% for s in result.buy_signals %}<li class="urgency-2">{{ s }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if not result.sell_signals and not result.buy_signals %}
+  <p class="muted">No CD tests firing.</p>
+  {% endif %}
+
+  <details>
+    <summary class="muted">weekly table (last {{ rows | length }} weeks)</summary>
+    <table>
+      <tr><th>Week</th><th class="num">Price</th><th class="num">CD</th></tr>
+      {% for ts, row in rows %}
+      <tr><td>{{ ts.date() }}</td><td class="num">{{ row["price"] | px }}</td>
+          <td class="num">{{ "%.3f" | format(row["cd"]) }}</td></tr>
+      {% endfor %}
+    </table>
+  </details>
+</div>

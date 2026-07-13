@@ -1,0 +1,35 @@
+{% set reports = result.reports %}
+{% set passed = reports | selectattr("passed") | list %}
+<div class="card">
+  <h2>Capability list — {{ passed | length }} of {{ reports | length }} passed</h2>
+  {% if passed %}
+  <p>{% for r in passed %}<span class="badge good">{{ r.ticker }}</span> {% endfor %}</p>
+  {% endif %}
+
+  {% for r in reports %}
+  <div class="card">
+    <strong>{{ r.ticker }}</strong>
+    <span class="badge {{ 'good' if r.passed else 'bad' }}">{{ "PASS" if r.passed else "FAIL" }}</span>
+    <span class="muted small">put ROI score {{ r.score | pct }} · as of {{ r.as_of }}</span>
+    <table>
+      <tr><th>Leg</th><th></th><th>Detail</th></tr>
+      {% for leg in r.legs %}
+      <tr>
+        <td>{{ leg.name }}</td>
+        <td>{{ "✓" if leg.passed else "✗" }}</td>
+        <td class="small muted">{{ leg.detail }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p class="muted small">call-side legs are diagnostic only — they never gate the verdict (docs/06 §6).</p>
+  </div>
+  {% endfor %}
+
+  {% if result.errors %}
+  <div class="box error">
+    {% for e in result.errors %}{{ e }}<br>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="box note">Advisory shortlist only — portfolio selection stays a human decision.</div>
+</div>

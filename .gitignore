@@ -5,6 +5,9 @@ options-trading-strategy.md
 .env.daily
 # personal positions
 portfolio.json
+# web-UI write lock + temp files (sit beside the ledger)
+portfolio.json.lock
+portfolio.json.tmp-*
 # generated daily reports
 reports/
 # provider cache

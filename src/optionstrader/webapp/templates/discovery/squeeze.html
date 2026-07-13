@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Squeeze — optionstrader{% endblock %}
+{% block content %}
+<h1>Short-squeeze screen</h1>
+<p class="muted small">Two-stage monthly screen: short-interest build (MoM increase + days-to-cover)
+then CMF/MA accumulation confirmation. Supply the published biggest-SI-increase list as the universe;
+zero candidates on most runs is correct — the book cut 20 names to 1. Same as
+<code>optionstrader squeeze</code>.</p>
+
+<div class="card">
+  <form hx-post="/squeeze" hx-target="#result" hx-swap="innerHTML">
+    <div style="display:flex; flex-wrap:wrap; gap:0.7rem; align-items:end;">
+      <label>tickers <textarea name="tickers" required placeholder="Published biggest-SI-increase names"></textarea></label>
+      <label class="check"><input type="checkbox" name="verbose" value="true"> show eliminated</label>
+      <button type="submit">screen</button>
+      <span class="htmx-indicator">starting…</span>
+    </div>
+  </form>
+</div>
+
+<div id="result"></div>
+{% endblock %}

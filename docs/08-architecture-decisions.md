@@ -104,6 +104,27 @@ basis (the book's scoreboard) is always shown next to honest mark-to-market
 P&L. *Why:* the book's own JDSU case shows the gap — 107% "cash return"
 alongside a stock down 56%; hiding either number misleads.
 
+**D10 — The web UI is a second consumer of the library, never a layer the
+core knows about.** `webapp/` (FastAPI + Jinja2 + htmx, vendored assets, no
+CDN) imports core modules; nothing in the core imports it, and the `[ui]`
+extra is optional — `import optionstrader` and the CLI work without it.
+Every screen calls the same functions the CLI commands call; the record
+forms go through the same gated `Position.record_*` methods, so refusals
+and warnings are identical in both interfaces. Concurrency is handled
+entirely in the webapp layer: writes go through
+`webapp/services/portfolio_io.locked_portfolio()` (flock + save-to-temp +
+atomic `os.replace`; `ledger.py` untouched — its mutable `path` field makes
+the temp-file trick possible), and each request/job constructs a fresh
+provider because the cache's sqlite connection is single-thread-only.
+Long-running commands (backtest, daily, scan, squeeze, screen) run in an
+in-memory thread registry — results are lost on restart, by design.
+Localhost-only (binds 127.0.0.1), single user, no auth. Non-features: no
+websockets, no SPA framework, no database, no multi-user, no order entry.
+*Why:* the UI must never be able to disagree with the CLI about rules or
+state — one library, one ledger file, two front ends. A possible future
+core improvement: atomic save inside `Portfolio.save()` itself, which would
+also cover concurrent CLI runs.
+
 ## 4. Boundaries drawn on purpose (not built, and why)
 
 - **Freeform chart-pattern detection** (falling wedges, H&S, cup-and-handle):

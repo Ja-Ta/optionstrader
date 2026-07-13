@@ -1,0 +1,40 @@
+{% set reports = result.reports %}
+{% set hits = reports | selectattr("passed") | list %}
+<div class="card">
+  <h2>Scan — {{ hits | length }} of {{ reports | length }} passed the 10 conditions</h2>
+
+  {% for r in hits %}
+  <div class="card">
+    <strong>{{ r.ticker }}</strong>
+    <span class="badge {{ 'good' if r.bucket == 'enter' else ('warn' if r.bucket == 'watch' else 'bad') }}">{{ r.bucket }}</span>
+    price {{ r.price | px }} · vol {{ "%.1f" | format(r.volume_ratio) }}x avg · day {{ r.day_change | pct }}
+    <ul class="plain">{% for reason in r.reasons %}<li>- {{ reason }}</li>{% endfor %}</ul>
+    {% if r.timing %}<p class="muted small">timing: {{ r.timing }}</p>{% endif %}
+    <details>
+      <summary class="muted small">ten-condition checklist</summary>
+      <ul class="plain small">
+        {% for name, ok in r.conditions.items() %}
+        <li>{{ "✓" if ok else "✗" }} {{ name }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+  </div>
+  {% else %}
+  <p class="muted">No passers — normal for an arbitrary day.</p>
+  {% endfor %}
+
+  {% if result.verbose %}
+  <h2>Non-passers</h2>
+  <table>
+    <tr><th>Ticker</th><th>Failed conditions</th></tr>
+    {% for r in reports if not r.passed %}
+    <tr><td>{{ r.ticker }}</td>
+        <td class="small">{{ r.failed() | join(", ") or r.reasons | join("; ") }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  {% if hits | length > 10 %}
+  <div class="box warn">&gt;10 hits — the book: too many means criteria too broad; tighten the band.</div>
+  {% endif %}
+</div>

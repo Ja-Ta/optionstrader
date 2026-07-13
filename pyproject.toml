@@ -14,13 +14,23 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "httpx>=0.27"]  # httpx: fastapi TestClient; webapp tests skip without the ui extra
+ui = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+]
 
 [project.scripts]
 optionstrader = "optionstrader.cli:main"
+optionstrader-ui = "optionstrader.webapp.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"optionstrader.webapp" = ["templates/**/*.html", "static/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

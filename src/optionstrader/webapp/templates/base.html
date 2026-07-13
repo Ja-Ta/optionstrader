@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- let htmx swap 422 responses: record-form gate refusals render inline -->
+  <meta name="htmx-config" content='{"responseHandling":[{"code":"[23]..","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true}]}'>
+  <title>{% block title %}optionstrader{% endblock %}</title>
+  <link rel="stylesheet" href="/static/vendor/uplot.min.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/vendor/htmx.min.js" defer></script>
+  <script src="/static/vendor/uplot.iife.min.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<header>
+  <nav>
+    <span class="brand">optionstrader</span>
+    <a href="/">Dashboard</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/record">Record</a>
+    <a href="/daily">Daily</a>
+    <span class="nav-sep">find:</span>
+    <a href="/analyze">Analyze</a>
+    <a href="/scan">Scan</a>
+    <a href="/squeeze">Squeeze</a>
+    <a href="/screen">Screen</a>
+    <a href="/cd">CD</a>
+    <a href="/plan">Plan</a>
+    <a href="/backtest">Backtest</a>
+    <a href="/jobs">Jobs</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+  local single-user tool — no orders are placed; the ledger is the same portfolio.json the CLI uses
+</footer>
+</body>
+</html>

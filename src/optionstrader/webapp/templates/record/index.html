@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Record — optionstrader{% endblock %}
+{% block content %}
+<h1>Record fills</h1>
+<p class="muted small">Writes the same <code>portfolio.json</code> the CLI uses, through the same
+gated methods — naked calls are refused, stock can't be sold while short calls are open, puts
+beyond the 2x cap warn. Nothing here places orders.</p>
+
+<div class="tabs">
+  <a href="#buy">buy shares</a><a href="#sell">sell shares</a><a href="#sale">option sale</a>
+  <a href="#buyback">buyback</a><a href="#expired">expired</a><a href="#assigned">assigned</a>
+</div>
+
+<div class="card" id="buy">
+  <h2>Buy shares</h2>
+  <form class="inline" hx-post="/record/buy-shares" hx-target="#buy-result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required></label>
+    <label>shares <input type="number" name="shares" required min="1"></label>
+    <label>price <input type="number" name="price" required step="0.01" min="0.01"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <label>account
+      <select name="account">
+        <option value="">(keep)</option>
+        <option value="long_term">long_term</option>
+        <option value="short_term">short_term</option>
+      </select>
+    </label>
+    <label>note <input name="note"></label>
+    <button type="submit">record buy</button>
+  </form>
+  <div id="buy-result"></div>
+</div>
+
+<div class="card" id="sell">
+  <h2>Sell shares</h2>
+  <form class="inline" hx-post="/record/sell-shares" hx-target="#sell-result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required></label>
+    <label>shares <input type="number" name="shares" required min="1"></label>
+    <label>price <input type="number" name="price" required step="0.01" min="0.01"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <label>note <input name="note"></label>
+    <button type="submit">record sale</button>
+  </form>
+  <div id="sell-result"></div>
+</div>
+
+<div class="card" id="sale">
+  <h2>Option sale (sell-call / sell-put)</h2>
+  <form class="inline" hx-post="/record/option-sale" hx-target="#sale-result" hx-swap="innerHTML">
+    <label>ticker <input name="ticker" required></label>
+    <label>kind
+      <select name="kind"><option value="call">call</option><option value="put">put</option></select>
+    </label>
+    <label>strike <input type="number" name="strike" required step="0.01" min="0.01"></label>
+    <label>expiry <input type="date" name="expiry" required></label>
+    <label>contracts <input type="number" name="contracts" required min="1"></label>
+    <label>premium/share <input type="number" name="premium" required step="0.01" min="0.01"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <label>note <input name="note"></label>
+    <button type="submit">record option sale</button>
+  </form>
+  <div id="sale-result"></div>
+</div>
+
+<div class="card" id="buyback">
+  <h2>Buyback</h2>
+  <form class="inline" hx-post="/record/buyback" hx-target="#buyback-result" hx-swap="innerHTML">
+    <label>ticker
+      <input name="ticker" id="bb-ticker" required
+             hx-get="/record/shorts/__t__" hx-trigger="change"
+             hx-target="#bb-shorts" hx-swap="innerHTML"
+             hx-vals='{"prefix": "bb"}'
+             onchange="this.setAttribute('hx-get', '/record/shorts/' + this.value)">
+    </label>
+    <label>kind <select name="kind" id="bb-kind"><option value="call">call</option><option value="put">put</option></select></label>
+    <label>strike <input type="number" name="strike" id="bb-strike" required step="0.01" min="0.01"></label>
+    <label>expiry <input type="date" name="expiry" id="bb-expiry" required></label>
+    <label>buy-back price <input type="number" name="price" required step="0.01" min="0"></label>
+    <label>contracts <input type="number" name="contracts" min="1" placeholder="all"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <label>note <input name="note"></label>
+    <button type="submit">record buyback</button>
+  </form>
+  <div id="bb-shorts" class="small"></div>
+  <div id="buyback-result"></div>
+</div>
+
+<div class="card" id="expired">
+  <h2>Expired worthless</h2>
+  <form class="inline" hx-post="/record/expired" hx-target="#expired-result" hx-swap="innerHTML">
+    <label>ticker
+      <input name="ticker" id="ex-ticker" required
+             hx-get="/record/shorts/__t__" hx-trigger="change"
+             hx-target="#ex-shorts" hx-swap="innerHTML"
+             hx-vals='{"prefix": "ex"}'
+             onchange="this.setAttribute('hx-get', '/record/shorts/' + this.value)">
+    </label>
+    <label>kind <select name="kind" id="ex-kind"><option value="call">call</option><option value="put">put</option></select></label>
+    <label>strike <input type="number" name="strike" id="ex-strike" required step="0.01" min="0.01"></label>
+    <label>expiry <input type="date" name="expiry" id="ex-expiry" required></label>
+    <label>contracts <input type="number" name="contracts" min="1" placeholder="all"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <button type="submit">record expiry</button>
+  </form>
+  <div id="ex-shorts" class="small"></div>
+  <div id="expired-result"></div>
+</div>
+
+<div class="card" id="assigned">
+  <h2>Assigned</h2>
+  <form class="inline" hx-post="/record/assigned" hx-target="#assigned-result" hx-swap="innerHTML">
+    <label>ticker
+      <input name="ticker" id="as-ticker" required
+             hx-get="/record/shorts/__t__" hx-trigger="change"
+             hx-target="#as-shorts" hx-swap="innerHTML"
+             hx-vals='{"prefix": "as"}'
+             onchange="this.setAttribute('hx-get', '/record/shorts/' + this.value)">
+    </label>
+    <label>kind <select name="kind" id="as-kind"><option value="call">call</option><option value="put">put</option></select></label>
+    <label>strike <input type="number" name="strike" id="as-strike" required step="0.01" min="0.01"></label>
+    <label>expiry <input type="date" name="expiry" id="as-expiry" required></label>
+    <label>contracts <input type="number" name="contracts" min="1" placeholder="all"></label>
+    <label>date <input type="date" name="day" value="{{ today }}"></label>
+    <button type="submit">record assignment</button>
+  </form>
+  <div id="as-shorts" class="small"></div>
+  <div id="assigned-result"></div>
+</div>
+
+{% if tickers %}
+<p class="muted small">positions on file: {{ tickers | join(", ") }}</p>
+{% endif %}
+{% endblock %}
