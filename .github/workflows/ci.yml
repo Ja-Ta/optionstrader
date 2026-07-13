@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,ui]"
       - name: Test (offline suite — no market data or keys needed)
         env:
           OPTIONSTRADER_NO_CACHE: "1"
